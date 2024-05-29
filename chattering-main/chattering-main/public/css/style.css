@@ -1,0 +1,111 @@
+body {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+/* Left Panel */
+.left_panel {
+    width: 20%;
+    height: 100vh;
+    background-color: #f4f4f4;
+    float: left;
+    padding: 10px;
+    box-sizing: border-box;
+    border-right: 1px solid #ddd;
+}
+
+.left_panel input[type="text"] {
+    width: calc(100% - 20px);
+    padding: 10px;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.left_panel .icons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.left_panel .inu_logo {
+    width: 100%;
+    margin-bottom: 30px;
+}
+
+.left_panel .icons button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.left_panel .icons button:hover {
+    background-color: #ddd;
+}
+
+/* Main Content Area */
+.center {
+    width: 80%;
+    height: 100vh;
+    float: right;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.center .messages {
+    width: 100%;
+    height: calc(100% - 50px);
+	background-color: #b4b3b3;
+    border: 1px solid black;
+    padding: 1em;
+    box-sizing: border-box;
+    overflow-y: auto;
+    position: relative;
+}
+.center .dweb_logo {
+    width: 500px;  /* Adjust the width as needed */
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+}
+
+.center .logo {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+}
+
+.center .textinput {
+    width: calc(100% - 40px);
+    height: 40px;
+    margin: 10px 0;
+    padding: 5px;
+    box-sizing: border-box;
+    border: 1px solid #413f3fe3;
+    border-radius: 4px;
+}
+
+.message_form form {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.message_form button {
+    padding: 10px 20px;
+    border: none;
+    background-color: #02499B;
+    color: rgb(204, 198, 198);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.message_form button:hover {
+    background-color: #023b82;
+}

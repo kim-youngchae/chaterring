@@ -1,0 +1,39 @@
+
+body {
+    width: 200px; 
+    margin: 0 auto; 
+    border: 3px solid blue ;
+    margin-top: 5%; 
+    }
+    
+    .center {
+    margin: 5% auto; /* 가운데 정렬 */
+    }
+    
+    .users {
+    float: right;
+    margin-right: 30%;
+    }
+    
+    .messages {
+    width: 500px;
+    height: 400px;
+    margin: auto;
+    border: 1px solid black;
+    padding: 1em;
+    }
+    
+    .message_form,
+    .change_name_form {
+    padding: 1em;
+    }
+    
+    .textinput {
+    margin-left: 3%;
+    width: 520px;
+    height: 40px;
+    
+    }
+    
+    
+    
