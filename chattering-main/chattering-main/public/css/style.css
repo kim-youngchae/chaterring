@@ -30,6 +30,7 @@ body {
     flex-direction: column;
     gap: 10px;
 }
+
 .left_panel .inu_logo {
     width: 100%;
     margin-bottom: 30px;
@@ -55,20 +56,23 @@ body {
     float: right;
     padding: 20px;
     box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
 }
 
 .center .messages {
     width: 100%;
-    height: calc(100% - 50px);
-	background-color: #b4b3b3;
+    flex-grow: 1;
+    background-color: #b4b3b3;
     border: 1px solid black;
     padding: 1em;
     box-sizing: border-box;
     overflow-y: auto;
     position: relative;
 }
+
 .center .dweb_logo {
-    width: 500px;  /* Adjust the width as needed */
+    width: 500px;
     position: absolute;
     bottom: 10px;
     right: 10px;
@@ -81,19 +85,26 @@ body {
 }
 
 .center .textinput {
-    width: calc(100% - 40px);
+    width: 100%; /* Full width */
     height: 40px;
-    margin: 10px 0;
     padding: 5px;
     box-sizing: border-box;
     border: 1px solid #413f3fe3;
     border-radius: 4px;
 }
 
+.message_form {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+
 .message_form form {
     display: flex;
     align-items: center;
     gap: 10px;
+    width: 100%;
 }
 
 .message_form button {
@@ -106,6 +117,15 @@ body {
     transition: background-color 0.3s;
 }
 
-.message_form button:hover {
-    background-color: #023b82;
+/* Message alignment */
+.message {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 10px;
+    word-break: break-word;
+}
+
+.message.own-message {
+    justify-content: flex-end;
+    text-align: right;
 }

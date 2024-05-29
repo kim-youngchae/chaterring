@@ -1,362 +1,345 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-  // 여기서부터는 브라우저 환경에서 CommonJS 모듈을 사용하는 방법을 구현한 코드입니다. 각 모듈을 로드하고 실행합니다.
+  'use strict';
   
-    'use strict';
-    
-    var React = require('react');
-    var socket = io.connect();
-    // React와 socket.io 클라이언트를 로드합니다.
-    
-    var UsersList = React.createClass({
-        displayName: 'UsersList',
-    
-        render: function render() {
-            return React.createElement(
-                'div',
-                { className: 'users' },
-                React.createElement(
-                    'h3',
-                    null,
-                    ' 참여자들 '
-                ),
-                React.createElement(
-                    'ul',
-                    null,
-                    this.props.users.map(function (user, i) {
-                        return React.createElement(
-                            'li',
-                            { key: i },
-                            user
-                        );
-                    })
-                )
-            );
-        }
-    });
-    // 참여자 목록을 렌더링하는 컴포넌트입니다. props로 전달된 users 배열을 통해 참여자들을 출력합니다.
+  var React = require('react');
+  var socket = io.connect();
   
-    var Message = React.createClass({
-        displayName: 'Message',
-    
-        render: function render() {
-            return React.createElement(
-                'div',
-                { className: 'message' },
-                React.createElement(
-                    'strong',
-                    null,
-                    this.props.user,
-                    ' : '
-                ),
-                React.createElement(
-                    'span',
-                    null,
-                    this.props.text
-                )
-            );
-        }
-    });
-    // 개별 메시지를 렌더링하는 컴포넌트입니다. props로 전달된 user와 text를 이용해 메시지를 출력합니다.
+  var UsersList = React.createClass({
+      displayName: 'UsersList',
   
-    var MessageList = React.createClass({
-        displayName: 'MessageList',
-    
-        render: function render() {
-            var roomName = this.props.roomName || '';
-            return React.createElement(
-                'div',
-                { className: 'messages' },
-                React.createElement(
-                    'h2',
-                    null,
-                    roomName
-                ),
-                React.createElement('img', { src: 'Dweb.png', alt: 'Dweb 이미지', className: 'dweb_logo' }),
-                this.props.messages.map(function (message, i) {
-                    return React.createElement(Message, {
-                        key: i,
-                        user: message.user,
-                        text: message.text
-                    });
-                })
-            );
-        }
-    });
-    // 메시지 목록을 렌더링하는 컴포넌트입니다. props로 전달된 roomName과 messages 배열을 통해 현재 방 이름과 메시지들을 출력합니다.
-  
-    var MessageForm = React.createClass({
-        displayName: 'MessageForm',
-    
-        getInitialState: function getInitialState() {
-            return { text: '' };
-        },
-        // 초기 상태를 설정합니다. text 상태는 빈 문자열로 초기화합니다.
-    
-        handleSubmit: function handleSubmit(e) {
-            e.preventDefault();
-            var message = {
-                user: this.props.user,
-                text: this.state.text,
-                roomName: this.props.roomName // 현재 방 이름을 함께 보냅니다.
-            };
-            this.props.onMessageSubmit(message);
-            this.setState({ text: '' });
-        },
-        // 메시지를 제출할 때 호출됩니다. 폼의 기본 동작을 막고, 메시지 객체를 만들어 부모 컴포넌트에 전달한 후 입력 필드를 초기화합니다.
-    
-        changeHandler: function changeHandler(e) {
-            this.setState({ text: e.target.value });
-        },
-        // 입력 필드의 값이 변경될 때 호출됩니다. 입력 필드의 값을 state에 저장합니다.
-    
-        render: function render() {
-            return React.createElement(
-                'div',
-                { className: 'message_form' },
-                React.createElement(
-                    'form',
-                    { onSubmit: this.handleSubmit },
-                    React.createElement('input', {
-                        placeholder: '메시지 입력',
-                        className: 'textinput',
-                        onChange: this.changeHandler,
-                        value: this.state.text
-                    }),
-                    React.createElement('button', { type: 'submit' }, '전송')
-                )
-            );
-        }
-    });
-    // 메시지 입력 폼을 렌더링하는 컴포넌트입니다. 입력 필드와 전송 버튼을 포함하고 있으며, 입력 필드의 값이 변경될 때와 폼이 제출될 때의 동작을 정의합니다.
-  
-    var RoomSearch = React.createClass({
-        displayName: 'RoomSearch',
-    
-        getInitialState: function getInitialState() {
-            return { roomName: '', roomExists: true, searchedRoom: '' }; // 초기 상태를 설정합니다. roomExists를 true로 설정하여 처음에는 메시지를 숨깁니다.
-        },
-    
-        onKey: function onKey(e) {
-            this.setState({ roomName: e.target.value });
-        },
-        // 입력 필드의 값이 변경될 때 호출됩니다. 입력 필드의 값을 state에 저장합니다.
-    
-        handleSubmit: function handleSubmit(e) {
-            e.preventDefault();
-            var roomName = this.state.roomName;
-            var roomExists = this.props.searchRoom(roomName);
-            if (roomExists) {
-                this.props.onChangeRoom(roomName); // 부모 컴포넌트의 방 이름을 업데이트합니다.
-                this.setState({ roomName: '', roomExists: true });
-            } else {
-                this.setState({ roomExists: false, searchedRoom: roomName }); // 방이 존재하지 않으면 상태를 업데이트하여 메시지를 표시합니다.
-            }
-        },
-        // 폼이 제출될 때 호출됩니다. 입력된 방 이름을 검색하고, 방이 존재하면 부모 컴포넌트의 방 이름을 업데이트하고, 방이 존재하지 않으면 상태를 업데이트하여 메시지를 표시합니다.
-    
-        handleCreateRoom: function handleCreateRoom(answer) {
-            if (answer === 'O') {
-                this.props.createNewRoom(this.state.searchedRoom);
-                this.props.onChangeRoom(this.state.searchedRoom); // 부모 컴포넌트의 방 이름을 업데이트합니다.
-                this.setState({ roomExists: true, roomName: '', searchedRoom: '' });
-            } else {
-                this.setState({ roomExists: true, searchedRoom: '' });
-            }
-        },
-        // 새로운 방을 생성할지 여부를 묻는 메시지에 대한 응답을 처리합니다. 'O'를 선택하면 새로운 방을 생성하고 부모 컴포넌트의 방 이름을 업데이트합니다.
-    
-        render: function render() {
-            return React.createElement(
-                'div',
-                { className: 'room_search' },
-                React.createElement('img', { src: 'INU.png', alt: 'INU 이미지', className: 'inu_logo' }),
-                React.createElement(
-                    'h3',
-                    null,
-                    ' 채팅방 검색 '
-                ),
-                React.createElement(
-                    'form',
-                    { onSubmit: this.handleSubmit },
-                    React.createElement('input', {
-                        placeholder: '검색할 채팅방 이름 입력',
-                        onChange: this.onKey,
-                        value: this.state.roomName
-                    }),
-                    React.createElement(
-                        'button',
-                        { type: 'submit' },
-                        '검색'
-                    )
-                ),
-                !this.state.roomExists && React.createElement(
-                    'div',
-                    null,
-                    React.createElement('p', null, `해당 채팅방이 없습니다. 새로운 채팅방 '${this.state.searchedRoom}'을(를) 개설하시겠습니까?`),
-                    React.createElement('button', { onClick: this.handleCreateRoom.bind(this, 'O') }, 'O'),
-                    React.createElement('button', { onClick: this.handleCreateRoom.bind(this, 'X') }, 'X')
-                )
-            );
-        }
-    });
-    // 방 검색 및 생성 기능을 제공하는 컴포넌트입니다. 사용자가 입력한 방 이름을 검색하고, 방이 존재하지 않으면 새로운 방을 생성할지 묻는 메시지를 표시합니다.
-    
-  
-    var ChatApp = React.createClass({
-        displayName: 'ChatApp',
-    
-        getInitialState: function getInitialState() {
-          return { users: [], messages: [], text: '', currentRoom: '' };
-        },
-        // 초기 상태를 설정합니다. users, messages, text, currentRoom을 초기화합니다.
-    
-        componentDidMount: function componentDidMount() {
-            socket.on('init', this._initialize);
-            socket.on('send:message', this._messageRecieve);
-            socket.on('user:join', this._userJoined);
-            socket.on('user:left', this._userLeft);
-            socket.on('change:name', this._userChangedName);
-        },
-        // 컴포넌트가 마운트되었을 때, 소켓 이벤트 리스너를 설정합니다.
-       
-      componentDidUpdate: function(prevProps, prevState) {
-        // 새로운 메시지가 추가될 때마다 로컬 스토리지에 저장합니다.
-        if (prevState.messages.length !== this.state.messages.length) {
-            this.saveChatData(this.state.user, this.state.currentRoom, this.state.messages);
-        }
-        // 방 제목 또는 사용자 이름이 변경될 때마다 로컬 스토리지에 저장합니다.
-        if (prevState.currentRoom !== this.state.currentRoom || prevState.user !== this.state.user) {
-            this.saveUserData(this.state.user, this.state.currentRoom);
-        }
-    },
-  
-    // 채팅 데이터를 로컬 스토리지에 저장합니다.
-    saveChatData: function(username, roomName, messages) {
-        localStorage.setItem('chatData', JSON.stringify({ username, roomName, messages }));
-    },
-  
-    // 사용자 이름과 방 제목을 로컬 스토리지에 저장합니다.
-    saveUserData: function(username, roomName) {
-        localStorage.setItem('userData', JSON.stringify({ username, roomName }));
-    },
-  
-    // 로컬 스토리지에서 채팅 데이터를 가져옵니다.
-    getChatData: function() {
-        const data = localStorage.getItem('chatData');
-        return data ? JSON.parse(data) : {};
-    },
-  
-    // 로컬 스토리지에서 사용자 데이터를 가져옵니다.
-    getUserData: function() {
-        const data = localStorage.getItem('userData');
-        return data ? JSON.parse(data) : {};
-    },
-    initChatData: function() {
-      const userData = this.getUserData();
-      const chatData = this.getChatData();
-      const newState = {};
-  
-      if (userData.username) {
-          newState.user = userData.username;
+      render: function render() {
+          return React.createElement(
+              'div',
+              { className: 'users' },
+              React.createElement(
+                  'h3',
+                  null,
+                  ' 참여자들 '
+              ),
+              React.createElement(
+                  'ul',
+                  null,
+                  this.props.users.map(function (user, i) {
+                      return React.createElement(
+                          'li',
+                          { key: i },
+                          user
+                      );
+                  })
+              )
+          );
       }
+  });
   
-      if (userData.roomName) {
-          newState.currentRoom = userData.roomName;
+  var Message = React.createClass({
+      displayName: 'Message',
+  
+      render: function render() {
+        var messageClass = this.props.isOwnMessage ? 'message own-message' : 'message';
+        return React.createElement(
+            'div',
+            { className: messageClass },
+            React.createElement(
+                'strong',
+                null,
+                this.props.user,
+                ' : '
+            ),
+            React.createElement(
+                'span',
+                null,
+                this.props.text
+            )
+        );
+    }
+});
+  
+var MessageList = React.createClass({
+  displayName: 'MessageList',
+
+  render: function render() {
+      var roomName = this.props.roomName || '채팅방';
+      return React.createElement(
+          'div',
+          { className: 'messages' },
+          React.createElement(
+              'h2',
+              null,
+              roomName
+          ),
+          this.props.messages.map(function (message, i) {
+              const isOwnMessage = message.user === this.props.currentUser;
+              const isStoredMessage = message.fromStorage; // 로컬 스토리지에서 불러온 메시지인지 확인
+              return React.createElement(Message, {
+                  key: i,
+                  user: message.user,
+                  text: message.text,
+                  isOwnMessage: isOwnMessage && !isStoredMessage, // 현재 사용자가 보낸 메시지이고 로컬 스토리지에서 불러온 메시지가 아닐 때만 true
+                  fromStorage: isStoredMessage
+              });
+          }.bind(this))
+      );
+  }
+});
+  
+  var MessageForm = React.createClass({
+      displayName: 'MessageForm',
+  
+      getInitialState: function getInitialState() {
+          return { text: '' };
+      },
+  
+      handleSubmit: function handleSubmit(e) {
+          e.preventDefault();
+          var message = {
+              user: this.props.user,
+              text: this.state.text,
+              roomName: this.props.roomName // Send room name with the message
+          };
+          this.props.onMessageSubmit(message);
+          this.setState({ text: '' });
+      },
+  
+      changeHandler: function changeHandler(e) {
+          this.setState({ text: e.target.value });
+      },
+  
+      render: function render() {
+          return React.createElement(
+              'div',
+              { className: 'message_form' },
+              React.createElement(
+                  'form',
+                  { onSubmit: this.handleSubmit },
+                  React.createElement('input', {
+                      placeholder: '메시지 입력',
+                      className: 'textinput',
+                      onChange: this.changeHandler,
+                      value: this.state.text
+                  }),
+                  React.createElement('button', { type: 'submit' }, '전송')
+              )
+          );
       }
+  });
   
-      if (chatData.messages) {
-          newState.messages = chatData.messages;
+  var RoomSearch = React.createClass({
+      displayName: 'RoomSearch',
+  
+      getInitialState: function getInitialState() {
+          return { roomName: '', roomExists: true, searchedRoom: '' }; // Initialize with true to hide the message initially
+      },
+  
+      onKey: function onKey(e) {
+          this.setState({ roomName: e.target.value });
+      },
+  
+      handleSubmit: function handleSubmit(e) {
+          e.preventDefault();
+          var roomName = this.state.roomName;
+          var roomExists = this.props.searchRoom(roomName);
+          if (roomExists) {
+              this.props.onChangeRoom(roomName); // Update the room name in the parent component
+              this.setState({ roomName: '', roomExists: true });
+          } else {
+              this.setState({ roomExists: false, searchedRoom: roomName }); // Update state to show the message if room doesn't exist
+          }
+      },
+  
+      handleCreateRoom: function handleCreateRoom(answer) {
+          if (answer === 'O') {
+              this.props.createNewRoom(this.state.searchedRoom);
+              this.props.onChangeRoom(this.state.searchedRoom); // Update the room name in the parent component
+              this.setState({ roomExists: true, roomName: '', searchedRoom: '' });
+          } else {
+              this.setState({ roomExists: true, searchedRoom: '' });
+          }
+      },
+  
+      render: function render() {
+          return React.createElement(
+              'div',
+              { className: 'room_search' },
+              React.createElement(
+                  'h3',
+                  null,
+                  ' 채팅방 검색 '
+              ),
+              React.createElement(
+                  'form',
+                  { onSubmit: this.handleSubmit },
+                  React.createElement('input', {
+                      placeholder: '검색할 채팅방 이름 입력',
+                      onChange: this.onKey,
+                      value: this.state.roomName
+                  }),
+                  React.createElement(
+                      'button',
+                      { type: 'submit' },
+                      '검색'
+                  )
+              ),
+              !this.state.roomExists && React.createElement(
+                  'div',
+                  null,
+                  React.createElement('p', null, `해당 채팅방이 없습니다. 새로운 채팅방 '${this.state.searchedRoom}'을(를) 개설하시겠습니까?`),
+                  React.createElement('button', { onClick: this.handleCreateRoom.bind(this, 'O') }, 'O'),
+                  React.createElement('button', { onClick: this.handleCreateRoom.bind(this, 'X') }, 'X')
+              )
+          );
       }
+  });
   
-      this.setState(newState);
+
+  var ChatApp = React.createClass({
+      displayName: 'ChatApp',
+  
+      getInitialState: function getInitialState() {
+        return { users: [], messages: [], text: '', currentRoom: '채팅방' };
+      },
+  
+      componentDidMount: function componentDidMount() {
+          socket.on('init', this._initialize);
+          socket.on('send:message', this._messageRecieve);
+          socket.on('user:join', this._userJoined);
+          socket.on('user:left', this._userLeft);
+          socket.on('change:name', this._userChangedName);
+      },
+     
+    componentDidUpdate: function(prevProps, prevState) {
+      // 새로운 메시지가 추가될 때마다 로컬 스토리지에 저장
+      if (prevState.messages.length !== this.state.messages.length) {
+          this.saveChatData(this.state.user, this.state.currentRoom, this.state.messages);
+      }
+      // 방 제목 또는 사용자 이름이 변경될 때마다 로컬 스토리지에 저장
+      if (prevState.currentRoom !== this.state.currentRoom || prevState.user !== this.state.user) {
+          this.saveUserData(this.state.user, this.state.currentRoom);
+      }
   },
-        // 초기 데이터를 설정합니다. 사용자와 채팅 데이터를 로컬 스토리지에서 가져와 상태를 업데이트합니다.
-        _initialize: function _initialize(data) {
-            var users = data.users;
-            var name = data.name;
-            var messages = data.messages || [];
-            this.setState({ users: users, user: name, messages: messages });
-        },
-        // 초기 데이터를 설정합니다. 서버에서 받은 사용자, 이름, 메시지를 상태로 설정합니다.
-    
-        _messageRecieve: function _messageRecieve(message) {
-            var messages = this.state.messages;
-            messages.push(message);
-            this.setState({ messages: messages });
-        },
-        // 새로운 메시지를 수신할 때 상태를 업데이트합니다.
-    
-        handleMessageSubmit: function handleMessageSubmit(message) {
+
+  // 채팅 데이터를 로컬 스토리지에 저장
+  saveChatData: function(username, roomName, messages) {
+      localStorage.setItem('chatData', JSON.stringify({ username, roomName, messages }));
+  },
+
+  // 사용자 이름과 방 제목을 로컬 스토리지에 저장
+  saveUserData: function(username, roomName) {
+      localStorage.setItem('userData', JSON.stringify({ username, roomName }));
+  },
+
+  // 로컬 스토리지에서 채팅 데이터를 가져오기
+  getChatData: function() {
+      const data = localStorage.getItem('chatData');
+      return data ? JSON.parse(data) : {};
+  },
+
+  // 로컬 스토리지에서 사용자 데이터를 가져오기
+  getUserData: function() {
+      const data = localStorage.getItem('userData');
+      return data ? JSON.parse(data) : {};
+  },
+  initChatData: function() {
+    const userData = this.getUserData();
+    const chatData = this.getChatData();
+    const newState = {};
+
+    if (userData.username) {
+        newState.user = userData.username;
+    }
+
+    if (userData.roomName) {
+        newState.currentRoom = userData.roomName;
+    }
+
+    if (chatData.messages) {
+      // 로컬 스토리지에서 불러온 메시지에 fromStorage 속성 추가
+      newState.messages = chatData.messages.map(message => ({
+          ...message,
+          fromStorage: true
+      }));
+  }
+
+    this.setState(newState);
+},
+      _initialize: function _initialize(data) {
+          var users = data.users;
+          var name = data.name;
+          var messages = data.messages || [];
+          this.setState({ users: users, user: name, messages: messages });
+      },
+  
+      _messageRecieve: function _messageRecieve(message) {
           var messages = this.state.messages;
           messages.push(message);
           this.setState({ messages: messages });
-          this.saveChatData(this.state.user, this.state.currentRoom, messages); // 로컬 스토리지에 저장합니다.
       },
-        // 메시지를 전송할 때 상태와 로컬 스토리지를 업데이트합니다.
-    
-        handleChangeRoom: function handleChangeRoom(newRoomName) {
-            this.setState({ currentRoom: newRoomName, messages: [] });
-            socket.emit('join:room', { roomName: newRoomName });
-            this.initChatData();
-        },
-        // 방을 변경할 때 상태를 업데이트하고 소켓 이벤트를 발생시킵니다.
-    
-        searchRoom: function searchRoom(roomName) {
-            var roomExists;
-            socket.emit('search:room', { roomName: roomName }, function(exists) {
-                roomExists = exists;
-            });
-            return roomExists;
-        },
-        // 방을 검색합니다. 소켓 이벤트를 통해 방이 존재하는지 확인합니다.
-    
-        createNewRoom: function createNewRoom(roomName) {
-            socket.emit('create:room', { roomName: roomName }, function(created) {
-                if (created) {
-                    this.handleChangeRoom(roomName);
-                } else {
-                    alert('방이 있습니다 그대로 입장합니다.');
-                }
-            }.bind(this));
-        },
-        // 새로운 방을 생성합니다. 소켓 이벤트를 통해 방을 생성하고 상태를 업데이트합니다.
-    
-        render: function render() {
-            return React.createElement(
-                'div',
-                null,
-                React.createElement(
-                    'div',
-                    { className: 'left_panel' },
-                    React.createElement(RoomSearch, {
-                        onChangeRoom: this.handleChangeRoom,
-                        searchRoom: this.searchRoom,
-                        createNewRoom: this.createNewRoom
-                    }),
-                    React.createElement(UsersList, {
-                        users: this.state.users
-                    }),
-                    
-                ),
-                React.createElement(
-                    'div',
-                    { className: 'center' },
-                    React.createElement(MessageList, {
-                        roomName: this.state.currentRoom,
-                        messages: this.state.messages
-                    }),
-                    React.createElement(MessageForm, {
-                        onMessageSubmit: this.handleMessageSubmit,
-                        user: this.state.user,
-                        roomName: this.state.currentRoom // 현재 방 이름을 MessageForm에 전달합니다.
-                    })
-                )
-            );
-        }
-    });
-    // 채팅 애플리케이션의 메인 컴포넌트입니다. 사용자 목록, 메시지 목록, 메시지 폼을 포함하며, 각종 상태와 이벤트 핸들러를 정의합니다.
-    
-    React.render(React.createElement(ChatApp, null), document.getElementById('app'));
+  
+      handleMessageSubmit: function handleMessageSubmit(message) {
+        var messages = this.state.messages;
+        messages.push(message);
+        this.setState({ messages: messages });
+        this.saveChatData(this.state.user, this.state.currentRoom, messages); // Save to localStorage
+    },
+  
+      handleChangeRoom: function handleChangeRoom(newRoomName) {
+          this.setState({ currentRoom: newRoomName, messages: [] });
+          socket.emit('join:room', { roomName: newRoomName });
+          this.initChatData();
+      },
+  
+      searchRoom: function searchRoom(roomName) {
+          var roomExists;
+          socket.emit('search:room', { roomName: roomName }, function(exists) {
+              roomExists = exists;
+          });
+          return roomExists;
+      },
+  
+      createNewRoom: function createNewRoom(roomName) {
+          socket.emit('create:room', { roomName: roomName }, function(created) {
+              if (created) {
+                  this.handleChangeRoom(roomName);
+              } else {
+                  alert('방이 있습니다 그대로 입장합니다.');
+              }
+          }.bind(this));
+      },
+  
+      render: function render() {
+          return React.createElement(
+              'div',
+              null,
+              React.createElement(
+                  'div',
+                  { className: 'left_panel' },
+                  React.createElement(RoomSearch, {
+                      onChangeRoom: this.handleChangeRoom,
+                      searchRoom: this.searchRoom,
+                      createNewRoom: this.createNewRoom
+                  }),
+                  React.createElement(UsersList, {
+                      users: this.state.users
+                  })
+              ),
+              React.createElement(
+                  'div',
+                  { className: 'center' },
+                  React.createElement(MessageList, {
+                      roomName: this.state.currentRoom,
+                      messages: this.state.messages,
+                      currentUser: this.state.user 
+                  }),
+                  React.createElement(MessageForm, {
+                      onMessageSubmit: this.handleMessageSubmit,
+                      user: this.state.user,
+                      roomName: this.state.currentRoom // Pass current room name to MessageForm
+                  })
+              )
+          );
+      }
+  });
+  
+  React.render(React.createElement(ChatApp, null), document.getElementById('app'));
     // React 애플리케이션을 렌더링합니다. ChatApp 컴포넌트를 'app'이라는 ID를 가진 DOM 요소에 렌더링합니다.
   },{"react":157}],2:[function(require,module,exports){
   // shim for using process in browser
