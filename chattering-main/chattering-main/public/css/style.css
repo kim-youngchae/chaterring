@@ -5,30 +5,30 @@ body {
     font-family: Arial, sans-serif;
 }
 
-/* Left Panel */
+/* 왼쪽 패널 */
 .left_panel {
-    width: 20%;
-    height: 100vh;
-    background-color: #f4f4f4;
-    float: left;
+    width: 20%; /* 패널 너비 */
+    height: 100vh; /* 화면 전체 높이 */
+    background-color: #f4f4f4; /* 배경 색상 */
+    float: left; /* 왼쪽에 배치 */
     padding: 10px;
     box-sizing: border-box;
-    border-right: 1px solid #ddd;
+    border-right: 1px solid #ddd; /* 오른쪽에 경계선 추가 */
 }
 
 .left_panel input[type="text"] {
-    width: calc(100% - 20px);
+    width: calc(100% - 20px); /* 패딩을 뺀 너비 계산 */
     padding: 10px;
     margin-bottom: 20px;
     box-sizing: border-box;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    border: 1px solid #ccc; /* 테두리 색상 */
+    border-radius: 4px; /* 모서리 둥글게 */
 }
 
 .left_panel .icons {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 10px; /* 아이콘 간의 간격 */
 }
 
 .left_panel .inu_logo {
@@ -41,19 +41,19 @@ body {
     border: none;
     cursor: pointer;
     padding: 10px;
-    border-radius: 4px;
-    transition: background-color 0.3s;
+    border-radius: 4px; /* 모서리 둥글게 */
+    transition: background-color 0.3s; /* 배경색 전환 효과 */
 }
 
 .left_panel .icons button:hover {
-    background-color: #ddd;
+    background-color: #ddd; /* 호버 시 배경색 변경 */
 }
 
-/* Main Content Area */
+/* 메인 콘텐츠 영역 */
 .center {
-    width: 80%;
-    height: 100vh;
-    float: right;
+    width: 80%; /* 패널 너비 */
+    height: 100vh; /* 화면 전체 높이 */
+    float: right; /* 오른쪽에 배치 */
     padding: 20px;
     box-sizing: border-box;
     display: flex;
@@ -63,11 +63,11 @@ body {
 .center .messages {
     width: 100%;
     flex-grow: 1;
-    background-color: #b4b3b3;
+    background-color: #b4b3b3; /* 배경 색상 */
     border: 1px solid black;
     padding: 1em;
     box-sizing: border-box;
-    overflow-y: auto;
+    overflow-y: auto; /* 세로 스크롤 추가 */
     position: relative;
 }
 
@@ -85,47 +85,47 @@ body {
 }
 
 .center .textinput {
-    width: 100%; /* Full width */
+    width: 100%; /* 전체 너비 */
     height: 40px;
     padding: 5px;
     box-sizing: border-box;
-    border: 1px solid #413f3fe3;
-    border-radius: 4px;
+    border: 1px solid #413f3fe3; /* 테두리 색상 */
+    border-radius: 4px; /* 모서리 둥글게 */
 }
 
 .message_form {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 10px; /* 간격 */
     width: 100%;
 }
 
 .message_form form {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 10px; /* 간격 */
     width: 100%;
 }
 
 .message_form button {
     padding: 10px 20px;
     border: none;
-    background-color: #02499B;
-    color: rgb(204, 198, 198);
-    border-radius: 4px;
+    background-color: #02499B; /* 배경 색상 */
+    color: rgb(204, 198, 198); /* 텍스트 색상 */
+    border-radius: 4px; /* 모서리 둥글게 */
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s; /* 배경색 전환 효과 */
 }
 
-/* Message alignment */
+/* 메시지 정렬 */
 .message {
     display: flex;
     justify-content: flex-start;
     margin-bottom: 10px;
-    word-break: break-word;
+    word-break: break-word; /* 단어 줄바꿈 */
 }
 
 .message.own-message {
-    justify-content: flex-end;
-    text-align: right;
+    justify-content: flex-end; /* 본인의 메시지는 오른쪽 정렬 */
+    text-align: right; /* 텍스트 오른쪽 정렬 */
 }
